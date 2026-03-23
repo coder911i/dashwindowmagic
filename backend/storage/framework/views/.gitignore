@@ -1,0 +1,3 @@
+# Required for Laravel view compilation.
+*
+!.gitignore

@@ -104,6 +104,8 @@ const getStatusType = (status) => {
 }
 
 const openLead = (lead) => {
-  router.push(`/agent/leads/${lead.id}`)
+  const authStore = useAuthStore()
+  const basePath = authStore.userRole === 'admin' ? '/admin' : '/agent'
+  router.push(`${basePath}/leads/${lead.id}`)
 }
 </script>

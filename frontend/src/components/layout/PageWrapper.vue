@@ -1,8 +1,15 @@
 <template>
-  <div class="max-w-7xl mx-auto w-full">
+  <div class="max-w-7xl mx-auto w-full animate-fade-in relative">
     <slot />
   </div>
 </template>
 
-<script setup>
-</script>
+<style scoped>
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+</style>

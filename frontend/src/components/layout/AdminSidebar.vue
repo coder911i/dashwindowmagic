@@ -14,7 +14,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 px-4 py-4 space-y-8 overflow-y-auto">
+    <nav class="flex-1 px-4 py-4 space-y-8 overflow-y-auto custom-scrollbar">
       <div v-for="group in menuGroups" :key="group.title">
         <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.1em] mb-4">
           {{ group.title }}
@@ -29,10 +29,10 @@
           >
             <div 
               class="w-full h-11 flex items-center px-4 rounded-lg transition-all group relative"
-              :class="[isActive ? 'bg-[#1E2433] text-white' : 'text-gray-400 hover:bg-[#1E2433] hover:text-white']"
+              :class="[isActive ? 'bg-[#1E2433] text-white shadow-lg shadow-black/20' : 'text-gray-400 hover:bg-[#1E2433] hover:text-white']"
             >
               <!-- Active Indicator Bar -->
-              <div v-if="isActive" class="absolute left-0 w-1 h-1/2 bg-blue-600 rounded-r-full"></div>
+              <div v-if="isActive" class="absolute left-0 w-1 h-5 bg-blue-600 rounded-r-full"></div>
               
               <component :is="item.icon" class="w-5 h-5 mr-3 transition-colors" />
               <span class="font-bold text-sm">{{ item.name }}</span>
@@ -48,7 +48,7 @@
         <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center font-bold text-blue-400 border border-blue-500/30">
           {{ profile?.name?.charAt(0) || 'A' }}
         </div>
-        <div class="flex-1 overflow-hidden">
+        <div class="flex-1 overflow-hidden text-left">
           <p class="text-xs font-bold text-white truncate">{{ profile?.name || 'Admin' }}</p>
           <p class="text-[10px] text-gray-500 font-medium truncate">{{ profile?.email }}</p>
         </div>
@@ -69,10 +69,9 @@ import {
   HomeModernIcon as PropertyIcon,
   PresentationChartLineIcon as AnalyticsIcon,
   ChatBubbleBottomCenterTextIcon as EnquiryIcon,
-  MegaphoneIcon as CampaignIcon,
   Cog6ToothIcon as SettingsIcon,
   ClipboardDocumentCheckIcon as ReraIcon,
-  BanknotesIcon as BuilderIcon
+  BanknotesIcon as CommissionIcon
 } from '@heroicons/vue/24/outline'
 
 const { profile, logout } = useAuth()
@@ -88,30 +87,26 @@ const menuGroups = [
     title: 'Overview',
     items: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: DashboardIcon },
-      { name: 'Analytics', path: '/admin/analytics', icon: AnalyticsIcon },
     ]
   },
   {
     title: 'Sales',
     items: [
       { name: 'Leads', path: '/admin/leads', icon: TeamsIcon },
-      { name: 'Enquiries', path: '/admin/enquiries', icon: EnquiryIcon },
       { name: 'Properties', path: '/admin/properties', icon: PropertyIcon },
     ]
   },
   {
-    title: 'Marketing',
+    title: 'Compliance',
     items: [
-      { name: 'Google Ads', path: '/admin/google-ads', icon: CampaignIcon },
-      { name: 'Campaigns', path: '/admin/campaigns', icon: CampaignIcon },
+      { name: 'RERA Checker', path: '/admin/rera', icon: ReraIcon },
     ]
   },
   {
     title: 'Operations',
     items: [
       { name: 'Team', path: '/admin/agents', icon: TeamsIcon },
-      { name: 'Builders', path: '/admin/builders', icon: BuilderIcon },
-      { name: 'RERA Checker', path: '/admin/rera', icon: ReraIcon },
+      { name: 'Commissions', path: '/admin/commissions', icon: CommissionIcon },
     ]
   },
   {

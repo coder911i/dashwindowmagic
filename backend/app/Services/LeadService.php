@@ -26,6 +26,16 @@ class LeadService extends BaseService
         ]);
     }
 
+    public function updateStatus(string $leadId, string $status, string $agentId)
+    {
+        $this->repository->update($leadId, [
+            'status' => $status,
+            'updatedAt' => new \DateTime()
+        ]);
+
+        $this->recordActivity($leadId, 'status_change', "Status changed to $status", $agentId);
+    }
+
     public function scoreLead(string $leadId)
     {
         $score = rand(1, 10);

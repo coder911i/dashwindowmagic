@@ -18,6 +18,11 @@ class BaseRepository
         $this->tenantId = $tenantId;
     }
 
+    public function getTenantId(): ?string
+    {
+        return $this->tenantId;
+    }
+
     /**
      * Get the firestore database instance.
      */

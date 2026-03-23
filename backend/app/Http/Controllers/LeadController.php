@@ -95,6 +95,24 @@ class LeadController extends Controller
         return $this->success(null, 'Lead deleted successfully.');
     }
 
+    public function updateStatus(Request $request, string $id)
+    {
+        $tenantId = $request->attributes->get('tenantId');
+        $agentId = $request->attributes->get('firebase_user_id');
+        $this->leadService->setTenantContext($tenantId);
+
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        $this->leadService->updateStatus($id, $request->status, $agentId);
+        return $this->success(null, 'Lead status updated.');
+    }
+
     public function score(Request $request, string $id)
     {
         $tenantId = $request->attributes->get('tenantId');

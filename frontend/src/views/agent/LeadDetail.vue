@@ -41,6 +41,9 @@
         </div>
       </div>
 
+      <!-- NRI Profile (Conditional) -->
+      <NRIPanel v-if="lead?.isNRI" :lead="lead" />
+
       <!-- Details List -->
       <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
         <h3 class="text-xs font-black text-gray-900 uppercase tracking-widest mb-6 border-b border-gray-50 pb-4">Lead Requirements</h3>
@@ -128,6 +131,7 @@ import {
   ChatBubbleOvalLeftEllipsisIcon,
   SparklesIcon
 } from '@heroicons/vue/24/outline'
+import NRIPanel from '@/components/leads/NRIPanel.vue'
 
 const route = useRoute()
 const leadsStore = useLeadsStore()

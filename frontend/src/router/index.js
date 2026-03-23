@@ -33,6 +33,11 @@ const routes = [
         component: () => import('@/views/admin/DashboardView.vue')
       },
       {
+        path: 'rera',
+        name: 'admin-rera',
+        component: () => import('@/views/admin/RERAChecker.vue'),
+      },
+      {
         path: 'leads',
         name: 'admin-leads',
         component: () => import('@/views/admin/LeadsView.vue')
@@ -41,6 +46,21 @@ const routes = [
         path: 'agents',
         name: 'admin-agents',
         component: () => import('@/views/admin/AgentsView.vue')
+      },
+      {
+        path: 'properties',
+        name: 'admin-properties',
+        component: () => import('@/views/admin/Properties.vue')
+      },
+      {
+        path: 'commissions',
+        name: 'admin-commissions',
+        component: () => import('@/views/admin/Commissions.vue')
+      },
+      {
+        path: 'settings',
+        name: 'admin-settings',
+        component: () => import('@/views/admin/Settings.vue')
       }
     ]
   },
@@ -67,9 +87,34 @@ const routes = [
       {
         path: 'leads/:id',
         name: 'lead-detail',
-        component: () => import('@/views/agent/LeadDetail.vue')
-      }
+        component: () => import('@/views/agent/LeadDetail.vue'),
+      },
+      {
+        path: 'follow-up',
+        name: 'ai-follow-up',
+        component: () => import('@/views/agent/AIFollowUp.vue'),
+      },
+      {
+        path: 'enquiries',
+        name: 'enquiries',
+        component: () => import('@/views/agent/Enquiries.vue'),
+      },
+      {
+        path: 'calculator',
+        name: 'calculator',
+        component: () => import('@/views/agent/EMICalculator.vue'),
+      },
+      {
+        path: 'visits',
+        name: 'visits',
+        component: () => import('@/views/agent/Scheduler.vue'),
+      },
     ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('@/views/errors/NotFound.vue')
   }
 ]
 
@@ -81,7 +126,6 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  // Wait for auth to init if it's still loading
   if (authStore.isLoading) {
     await authStore.init()
   }
@@ -92,10 +136,8 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
   } else if (to.meta.role && userRole !== to.meta.role) {
-    // Redirect to correct dashboard if trying to access unauthorized area
     next(userRole === 'admin' ? '/admin/dashboard' : '/agent/pipeline')
   } else if (isAuthenticated && (to.name === 'login' || to.name === 'register')) {
-    // Already logged in, go to respective dashboard
     next(userRole === 'admin' ? '/admin/dashboard' : '/agent/pipeline')
   } else {
     next()

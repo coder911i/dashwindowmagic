@@ -90,12 +90,7 @@ export const useLeadsStore = defineStore('leads', {
     },
 
     async updateLeadStatus(id, status) {
-      const authStore = useAuthStore()
-      const leadRef = doc(db, 'tenants', authStore.tenantId, 'leads', id)
-      await updateDoc(leadRef, { 
-        status, 
-        updatedAt: new Date() 
-      })
+      await api.patch(`/leads/${id}/status`, { status })
     },
 
     async scoreLead(id) {
