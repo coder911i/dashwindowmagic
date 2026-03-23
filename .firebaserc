@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "watering-crm-production",
+    "staging": "watering-crm-staging"
+  }
+}
