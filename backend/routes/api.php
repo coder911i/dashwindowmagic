@@ -44,6 +44,7 @@ Route::middleware([TenantMiddleware::class])->group(function () {
         Route::patch('/{id}/status', [LeadController::class, 'updateStatus']);
         Route::delete('/{id}', [LeadController::class, 'destroy']);
         Route::post('/{id}/score', [LeadController::class, 'score']);
+        Route::post('/import', [LeadController::class, 'import']);
     });
 
     // AI Message Routes

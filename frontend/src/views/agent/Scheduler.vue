@@ -37,18 +37,25 @@
         </div>
       </div>
     </div>
+
+    <!-- Modals -->
+    <OutcomeModal :show="showOutcome" :visit="activeVisit" @close="showOutcome = false" @save="handleOutcomeSave" />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useVisitsStore } from '@/stores/visits'
 import { storeToRefs } from 'pinia'
 import VisitCalendar from '@/components/visits/VisitCalendar.vue'
 import VisitForm from '@/components/visits/VisitForm.vue'
+import OutcomeModal from '@/components/visits/OutcomeModal.vue'
 
 const visitsStore = useVisitsStore()
 const { visits, loading } = storeToRefs(visitsStore)
+
+const showOutcome = ref(false)
+const activeVisit = ref(null)
 
 onMounted(() => {
   visitsStore.fetchVisits()
@@ -68,11 +75,19 @@ const handleSchedule = async (data) => {
 
 const handleAction = async ({ type, id }) => {
   if (type === 'complete') {
-    await visitsStore.updateStatus(id, 'completed')
+    activeVisit.value = visits.value.find(v => v.id === id)
+    showOutcome.value = true
   } else if (type === 'cancel') {
     if (confirm('Cancel this visit?')) {
       await visitsStore.updateStatus(id, 'cancelled')
     }
   }
+}
+
+const handleOutcomeSave = async (outcomeData) => {
+    if (activeVisit.value) {
+        await visitsStore.updateStatus(activeVisit.value.id, 'completed', outcomeData)
+        activeVisit.value = null
+    }
 }
 </script>

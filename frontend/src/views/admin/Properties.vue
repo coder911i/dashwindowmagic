@@ -58,7 +58,7 @@
             </div>
 
             <div class="mt-auto flex gap-3">
-              <button class="flex-1 py-4 bg-gray-50 text-gray-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all">Edit</button>
+              <button @click="editProperty(property)" class="flex-1 py-4 bg-gray-50 text-gray-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all">Edit</button>
               <button @click="store.deleteProperty(property.id)" class="py-4 px-6 bg-red-50 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-all">
                 <TrashIcon class="w-4 h-4" />
               </button>
@@ -77,6 +77,11 @@
         </div>
       </div>
     </div>
+
+    <!-- Modals -->
+    <Modal :show="showForm" :title="selectedProperty ? 'Edit Property' : 'Add New Property'" @close="closeForm">
+      <PropertyForm :property="selectedProperty" @success="handleSuccess" />
+    </Modal>
   </div>
 </template>
 
@@ -84,11 +89,29 @@
 import { ref, onMounted } from 'vue'
 import { usePropertiesStore } from '@/stores/properties'
 import { MapPinIcon, PhotoIcon, TrashIcon, HomeModernIcon } from '@heroicons/vue/24/outline'
+import Modal from '@/components/ui/Modal.vue'
+import PropertyForm from '@/components/properties/PropertyForm.vue'
 
 const store = usePropertiesStore()
 const showForm = ref(false)
+const selectedProperty = ref(null)
 
 onMounted(() => {
   store.fetchProperties()
 })
+
+const editProperty = (prop) => {
+    selectedProperty.value = prop
+    showForm.value = true
+}
+
+const closeForm = () => {
+    showForm.value = false
+    selectedProperty.value = null
+}
+
+const handleSuccess = () => {
+    closeForm()
+    store.fetchProperties()
+}
 </script>

@@ -40,4 +40,17 @@ class LeadRepository extends BaseRepository
         }
         return false;
     }
+
+    public function bulkStore(array $records): int
+    {
+        $collection = $this->getCollection();
+        $batchCount = 0;
+
+        foreach ($records as $record) {
+            $collection->add($record);
+            $batchCount++;
+        }
+
+        return $batchCount;
+    }
 }

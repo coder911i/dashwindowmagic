@@ -121,4 +121,25 @@ class LeadController extends Controller
         $score = $this->leadService->scoreLead($id);
         return $this->success(['score' => $score], 'Lead scored successfully.');
     }
+
+    public function import(Request $request)
+    {
+        $tenantId = $request->attributes->get('tenantId');
+        $this->leadService->setTenantContext($tenantId);
+
+        $validator = Validator::make($request->all(), [
+            'leads' => 'required|array',
+            'leads.*.name' => 'required|string',
+            'leads.*.phone' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        $agentId = $request->attributes->get('firebase_user_id');
+        $count = $this->leadService->importLeads($request->leads, $agentId);
+
+        return $this->success(['count' => $count], "Successfully imported $count leads.");
+    }
 }

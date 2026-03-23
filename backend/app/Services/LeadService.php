@@ -42,4 +42,27 @@ class LeadService extends BaseService
         $this->repository->update($leadId, ['score' => $score]);
         return $score;
     }
+
+    public function importLeads(array $leads, string $agentId)
+    {
+        $processedLeads = [];
+        $now = new \DateTime();
+
+        foreach ($leads as $lead) {
+            $processedLeads[] = array_merge($lead, [
+                'agentId' => $agentId,
+                'status' => 'new',
+                'createdAt' => $now,
+                'updatedAt' => $now,
+                'timeline' => [[
+                    'action' => 'imported',
+                    'note' => 'Lead imported via CSV',
+                    'agentId' => $agentId,
+                    'timestamp' => $now
+                ]]
+            ]);
+        }
+
+        return $this->repository->bulkStore($processedLeads);
+    }
 }

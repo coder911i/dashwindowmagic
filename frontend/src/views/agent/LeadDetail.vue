@@ -107,13 +107,65 @@
       </div>
 
       <!-- AI Copilot Tab -->
-      <div v-if="currentTab === 'AI Copilot'" class="flex-1 flex flex-col items-center justify-center text-center p-12 bg-blue-50/30 rounded-3xl border border-dashed border-blue-200">
-        <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-blue-500/20">
-          <SparklesIcon class="w-10 h-10 text-white animate-pulse" />
+      <div v-if="currentTab === 'AI Copilot'" class="flex-1 flex flex-col gap-8 overflow-y-auto custom-scrollbar px-4 py-4">
+        <!-- Outreach Generator -->
+        <div class="bg-gradient-to-br from-blue-600 to-[#7C3AED] rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden group">
+          <div class="absolute -right-20 -top-20 w-80 h-80 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
+                <SparklesIcon class="w-6 h-6 text-white" />
+              </div>
+              <h3 class="text-base font-black uppercase tracking-widest">AI Outreach Engine</h3>
+            </div>
+            
+            <p v-if="!generatedMessage" class="text-blue-50 text-sm font-medium leading-relaxed max-w-md mb-8">
+              Based on {{ lead?.name }}'s interest in {{ lead?.locality }}, I can draft a high-conversion follow-up message.
+            </p>
+            
+            <div v-if="generatedMessage" class="bg-white/10 backdrop-blur-md rounded-3xl p-6 mb-8 border border-white/20">
+              <p class="text-xs font-bold leading-relaxed whitespace-pre-line">{{ generatedMessage }}</p>
+            </div>
+
+            <button 
+              @click="generateMessage" 
+              :disabled="generating"
+              class="bg-white text-blue-600 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:translate-y-[-2px] active:translate-y-0 transition-all disabled:opacity-50"
+            >
+              {{ generating ? 'Analyzing Lead Intent...' : (generatedMessage ? 'Regenerate Draft' : 'Generate Outreach Concept') }}
+            </button>
+          </div>
         </div>
-        <h2 class="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tighter">AI Assistant Active</h2>
-        <p class="text-gray-500 max-w-sm text-sm font-medium leading-relaxed">I'm analyzing lead behavior and market trends. I'll provide outreach suggestions soon.</p>
-        <button class="mt-8 bg-[#0F1117] text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl hover:translate-y-[-2px] transition-all">Generate Outreach Message</button>
+
+        <!-- Property Matches -->
+        <div>
+          <div class="flex justify-between items-center mb-8 px-4">
+            <h3 class="text-xs font-black text-gray-900 uppercase tracking-widest">Recommended Inventory</h3>
+            <span class="text-[9px] font-black text-blue-600 uppercase">Matched by AI</span>
+          </div>
+
+          <div v-if="matchingProperties.length === 0" class="p-12 text-center bg-gray-50 rounded-[32px] border border-gray-100 italic">
+            <p class="text-xs font-bold text-gray-400">Searching your inventory for matches...</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div v-for="prop in matchingProperties" :key="prop.id" 
+              class="bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all group flex flex-col text-left">
+              <div class="flex justify-between items-center mb-4">
+                <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[8px] font-black rounded-full uppercase">{{ prop.matchScore }}% Match</span>
+                <button class="text-gray-300 hover:text-blue-600 transition-colors"><PaperAirplaneIcon class="w-4 h-4" /></button>
+              </div>
+              <h4 class="text-sm font-black text-gray-900 uppercase tracking-tighter mb-1">{{ prop.title }}</h4>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ prop.locality }} • ₹{{ prop.price / 100000 }}L</p>
+              
+              <div class="mt-6 pt-4 border-t border-gray-50 flex justify-between items-center">
+                <span class="text-[9px] font-black text-blue-600 uppercase">{{ prop.bhk }} BHK</span>
+                <button class="text-[9px] font-black text-gray-900 uppercase tracking-widest underline underline-offset-4">View Unit</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -129,7 +181,8 @@ import {
   CalendarIcon, 
   PhoneIcon, 
   ChatBubbleOvalLeftEllipsisIcon,
-  SparklesIcon
+  SparklesIcon,
+  PaperAirplaneIcon
 } from '@heroicons/vue/24/outline'
 import NRIPanel from '@/components/leads/NRIPanel.vue'
 
@@ -137,6 +190,28 @@ const route = useRoute()
 const leadsStore = useLeadsStore()
 const currentTab = ref('Timeline')
 const lead = ref(null)
+
+// AI Copilot Logic
+const generating = ref(false)
+const generatedMessage = ref('')
+const matchingProperties = ref([])
+
+const generateMessage = async () => {
+    generating.value = true
+    // Simulation of AI behavior
+    setTimeout(() => {
+        generatedMessage.value = `Hey ${lead.value?.name}! 👋\n\nHope you're having a great day. I remember you were looking for a ${lead.value?.configuration || '3 BHK'} in ${lead.value?.location || 'Gurgaon'} within the ₹${lead.value?.budgetMin / 100000}L range.\n\nI've found a new unit at ${matchingProperties.value[0]?.title || 'Emerald Hills'} that fits your criteria perfectly. Would you like me to send over the floor plans and brochure?`
+        generating.value = false
+    }, 1500)
+}
+
+const findMatches = () => {
+    // Simulated matching logic
+    matchingProperties.value = [
+        { id: 1, title: 'Godrej Air', locality: 'Sector 85, Gurgaon', price: 14500000, bhk: '3', matchScore: 98 },
+        { id: 2, title: 'M3M Heights', locality: 'Sector 65, Gurgaon', price: 18000000, bhk: '3', matchScore: 85 }
+    ]
+}
 
 const details = computed(() => {
   if (!lead.value) return {}
@@ -152,6 +227,7 @@ const details = computed(() => {
 onMounted(async () => {
   const leadId = route.params.id
   lead.value = await leadsStore.fetchLeadById(leadId)
+  findMatches()
 })
 
 const formatDate = (ts) => {

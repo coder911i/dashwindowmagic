@@ -6,7 +6,9 @@
         <p class="text-gray-400 text-[10px] font-black tracking-widest uppercase truncate max-w-[200px] sm:max-w-none">Comprehensive list of all opportunities</p>
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto">
-        <div class="flex-1 sm:flex-none relative">
+        <button @click="showImport = true" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-blue-100 transition-all">Import</button>
+        <button @click="showForm = true" class="px-4 py-2 bg-gray-900 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">+ Add Lead</button>
+        <div class="flex-1 sm:flex-none relative ml-2">
           <input type="text" placeholder="Search leads..." class="w-full sm:w-64 px-4 py-2 pl-9 bg-white border border-gray-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/10 transition-all" />
           <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </div>
@@ -69,17 +71,25 @@
         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest uppercase">Showing 1-{{ leads.length }} of {{ leads.length }} leads</p>
       </div>
     </div>
+
+    <!-- Modals -->
+    <LeadForm :show="showForm" @close="showForm = false" />
+    <CSVImport :show="showImport" @close="showImport = false" @success="handleImportSuccess" />
   </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLeadsStore } from '@/stores/leads'
 import { storeToRefs } from 'pinia'
 import { AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline'
 import Badge from '@/components/ui/Badge.vue'
+import LeadForm from '@/components/leads/LeadForm.vue'
+import CSVImport from '@/components/leads/CSVImport.vue'
 
+const showForm = ref(false)
+const showImport = ref(false)
 const router = useRouter()
 const leadsStore = useLeadsStore()
 const { leads } = storeToRefs(leadsStore)
