@@ -1,54 +1,38 @@
 <?php
 
+use App\Http\Controllers\Auth\AcceptInviteController;
+use App\Http\Controllers\Auth\InviteController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\LeadController;
 use App\Http\Middleware\TenantMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
 Route::get('/health', function () {
     return response()->json(['success' => true, 'message' => 'Watering CRM API is healthy']);
 });
 
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [RegisterController::class, 'register']);
+    Route::post('/accept-invite', [AcceptInviteController::class, 'accept']);
+});
+
 Route::middleware([TenantMiddleware::class])->group(function () {
     
-    // Auth related info
-    Route::get('/user', function (Request $request) {
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'firebase_uid' => $request->attributes->get('firebase_user_id'),
-                'tenant_id' => $request->attributes->get('tenantId'),
-                'role' => $request->attributes->get('role'),
-            ]
-        ]);
+    Route::prefix('auth')->group(function () {
+        Route::get('/me', [LoginController::class, 'me']);
+        Route::post('/invite', [InviteController::class, 'invite']);
     });
 
-    // Leads
+    // Lead Management Routes
     Route::prefix('leads')->group(function () {
-        // Route::get('/', [LeadController::class, 'index']);
-        // Route::post('/', [LeadController::class, 'store']);
-        // Route::get('/{id}', [LeadController::class, 'show']);
-        // Route::put('/{id}', [LeadController::class, 'update']);
-        // Route::delete('/{id}', [LeadController::class, 'destroy']);
-    });
-
-    // Properties
-    Route::prefix('properties')->group(function () {
-        // Route::get('/', [PropertyController::class, 'index']);
-    });
-
-    // AI Proxy (To Python FastAPI Service)
-    Route::prefix('ai')->group(function () {
-        // Routes proxied to ai-service
+        Route::get('/', [LeadController::class, 'index']);
+        Route::post('/', [LeadController::class, 'store']);
+        Route::get('/{id}', [LeadController::class, 'show']);
+        Route::put('/{id}', [LeadController::class, 'update']);
+        Route::delete('/{id}', [LeadController::class, 'destroy']);
+        Route::post('/{id}/score', [LeadController::class, 'score']);
     });
 });
+

@@ -5,19 +5,13 @@ namespace App\Repositories;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 use Google\Cloud\Firestore\FirestoreClient;
 
-abstract class BaseRepository
+class BaseRepository
 {
-    protected FirestoreClient $firestore;
     protected string $collection;
-    protected string $tenantId;
-
-    public function __construct()
-    {
-        $this->firestore = Firebase::firestore()->database();
-    }
+    protected ?string $tenantId = null;
 
     /**
-     * Set the tenant context for queries.
+     * Set the current tenant context.
      */
     public function setTenantId(string $tenantId): void
     {
@@ -25,14 +19,30 @@ abstract class BaseRepository
     }
 
     /**
-     * Get the collection reference for the current tenant.
+     * Get the firestore database instance.
+     */
+    protected function getDatabase(): FirestoreClient
+    {
+        return Firebase::firestore()->database();
+    }
+
+    /**
+     * Get the collection for the current tenant.
+     * All tenant data is nested under /tenants/{tenantId}/{collection}
      */
     protected function getCollection()
     {
-        return $this->firestore->collection('tenants')->document($this->tenantId)->collection($this->collection);
+        if (!$this->tenantId) {
+            throw new \Exception('Tenant context not set in Repository.');
+        }
+
+        return $this->getDatabase()
+            ->collection('tenants')
+            ->document($this->tenantId)
+            ->collection($this->collection);
     }
 
-    public function all()
+    public function getAll()
     {
         $documents = $this->getCollection()->documents();
         $data = [];
@@ -44,7 +54,7 @@ abstract class BaseRepository
         return $data;
     }
 
-    public function find(string $id)
+    public function getById(string $id)
     {
         $document = $this->getCollection()->document($id)->snapshot();
         if ($document->exists()) {
@@ -53,32 +63,22 @@ abstract class BaseRepository
         return null;
     }
 
-    public function create(array $data)
+    public function store(array $data)
     {
-        $newDoc = $this->getCollection()->newDocument();
-        $newDoc->set($data);
-        return array_merge(['id' => $newDoc->id()], $data);
+        $docRef = $this->getCollection()->newDocument();
+        $docRef->set($data);
+        return array_merge(['id' => $docRef->id()], $data);
     }
 
     public function update(string $id, array $data)
     {
         $docRef = $this->getCollection()->document($id);
-        $docRef->update($this->formatUpdateData($data));
-        return $this->find($id);
+        $docRef->set($data, ['merge' => true]);
+        return $this->getById($id);
     }
 
     public function delete(string $id)
     {
         $this->getCollection()->document($id)->delete();
-        return true;
-    }
-
-    protected function formatUpdateData(array $data): array
-    {
-        $formatted = [];
-        foreach ($data as $key => $value) {
-            $formatted[] = ['path' => $key, 'value' => $value];
-        }
-        return $formatted;
     }
 }

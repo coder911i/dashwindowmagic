@@ -2,33 +2,31 @@
 
 namespace App\Services;
 
-abstract class BaseService
+class BaseService
 {
     protected $repository;
 
     /**
-     * Set the tenant context for the service and its repository.
+     * Set the current tenant context in the repository.
      */
     public function setTenantContext(string $tenantId): void
     {
-        if (method_exists($this->repository, 'setTenantId')) {
-            $this->repository->setTenantId($tenantId);
-        }
+        $this->repository->setTenantId($tenantId);
     }
 
     public function getAll()
     {
-        return $this->repository->all();
+        return $this->repository->getAll();
     }
 
     public function getById(string $id)
     {
-        return $this->repository->find($id);
+        return $this->repository->getById($id);
     }
 
     public function store(array $data)
     {
-        return $this->repository->create($data);
+        return $this->repository->store($data);
     }
 
     public function update(string $id, array $data)
@@ -38,6 +36,6 @@ abstract class BaseService
 
     public function delete(string $id)
     {
-        return $this->repository->delete($id);
+        $this->repository->delete($id);
     }
 }
